@@ -1,3 +1,3 @@
 export interface ILogo {
-    get InnerHtml(): string;
+  get InnerHtml(): string;
 }

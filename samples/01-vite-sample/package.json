@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@duude92/lazyinject": "^0.1.10",
-    "@duude92/lazyinject-vite": "file:../../",
+    "@duude92/lazyinject-vite": "^0.0.2",
     "typescript": "~5.9.3",
     "vite": "^7.2.4"
   }
