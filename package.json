@@ -12,5 +12,9 @@
     "@duude92/lazyinject": "^0.1.9",
     "typescript": "~5.9.3",
     "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@types/node": "^24.10.2",
+    "fast-glob": "^3.3.3"
   }
 }
