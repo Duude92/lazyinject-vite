@@ -10,7 +10,11 @@
     "build": "tsc --build tsconfig.json"
   },
   "exports": {
-    ".": "./dist/plugin.js"
+    ".": {
+      "import": "./dist/plugin.js",
+      "types": "./dist/plugin.d.ts",
+      "default": "./dist/plugin.js"
+    }
   },
   "devDependencies": {
     "@duude92/lazyinject": "^0.1.9",

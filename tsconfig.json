@@ -10,10 +10,12 @@
     "moduleResolution": "node",
     "rootDir": "src",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "declaration": true,
+    "declarationMap": false,
 
   },
   "include": [
-    "src/plugin.ts",
+    "src/plugin.ts"
   ]
 }
