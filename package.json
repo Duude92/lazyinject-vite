@@ -1,12 +1,16 @@
 {
-  "name": "lazyinject-vite",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "@duude92/lazyinject-vite",
+  "private": false,
+  "version": "0.0.1",
+  "type": "commonjs",
+  "main": "./dist/plugin.js",
+  "repository": "https://github.com/Duude92/lazyinject-vite",
+  "license": "MIT",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build": "tsc --build tsconfig.json"
+  },
+  "exports": {
+    ".": "./dist/plugin.js"
   },
   "devDependencies": {
     "@duude92/lazyinject": "^0.1.9",
@@ -16,5 +20,8 @@
   "dependencies": {
     "@types/node": "^24.10.2",
     "fast-glob": "^3.3.3"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
