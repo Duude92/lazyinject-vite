@@ -17,6 +17,7 @@
       "default": "./dist/plugin.js"
     }
   },
+  "types": "./dist/plugin.d.ts",
   "devDependencies": {
     "@duude92/lazyinject": "^0.1.9",
     "typescript": "~5.9.3",
