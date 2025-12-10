@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import glob from 'fast-glob';
 import { PluginOption, type ResolvedConfig } from 'vite';
 import { readFileSync } from 'node:fs';
@@ -21,16 +22,33 @@ export function viteLazyInject() {
 
       const indexRoot = path.dirname(id);
       const sourceDir = indexRoot ?? rootDir;
-      const callMatch = code.match(/await ContainerFactory\.create\s*\(\s*({[\s\S]*?})\s*\)/);
-      if (!callMatch) return null;
+      const emptyContainer = code.match(/await ContainerFactory\.create\s*\(\s*\)/);
+      let catalogsStr = '';
+      if (!emptyContainer) {
+        const callMatch = code.match(/await ContainerFactory\.create\s*\(\s*({[\s\S]*?})\s*\)/);
+        if (!callMatch) {
+          return null;
+        }
+        code = code.replace(callMatch[0], `new Container()`);
+        const argsStr = callMatch[1];
+        // extract catalogs
+        const catalogsMatch = argsStr.match(/catalogs\s*:\s*\[([\s\S]*?)\]/);
+        if (!catalogsMatch) return null;
+        catalogsStr = catalogsMatch[1];
+      } else {
+        code = code.replace(emptyContainer[0], `new Container()`);
 
-      const argsStr = callMatch[1];
+        const configFile = 'lazyinject.config.js';
+        const configPath = path.join(rootDir, configFile);
 
-      // extract catalogs
-      const catalogsMatch = argsStr.match(/catalogs\s*:\s*\[([\s\S]*?)\]/);
-      if (!catalogsMatch) return null;
+        if (!fs.existsSync(configPath)) return null;
 
-      const catalogsStr = catalogsMatch[1];
+        const config = readFileSync(configPath, 'utf8');
+        const configMatch = config.match(/catalogs:\s*\[(.+)]/);
+
+        catalogsStr = configMatch ? configMatch[1] : '{ path: \".\" }';
+      }
+
       const pathRegex = /path\s*:\s*['"`](.*?)['"`]/g;
 
       const paths = [];
@@ -65,7 +83,7 @@ export function viteLazyInject() {
       }
 
       return {
-        code: code.replace(callMatch[0], `new Container()`),
+        code,
         map: null,
       };
     },
