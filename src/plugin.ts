@@ -1,6 +1,6 @@
 import path from 'node:path';
 import glob from 'fast-glob';
-import { type Plugin, type ResolvedConfig } from 'vite';
+import { PluginOption, type ResolvedConfig } from 'vite';
 import { readFileSync } from 'node:fs';
 import { transform } from 'esbuild';
 
@@ -92,5 +92,5 @@ export function viteLazyInject() {
         return transformedCode.code;
       }
     },
-  } as Plugin;
+  } as PluginOption;
 }
