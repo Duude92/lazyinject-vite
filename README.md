@@ -20,7 +20,9 @@ module.exports = {
     catalogs: ['src', 'src/implementations'],
 };
 ```
+
 - Setup vite plugin within your vite.config.ts:
+
 ```
 export default defineConfig({
     plugins: [viteLazyInject()],
@@ -28,10 +30,16 @@ export default defineConfig({
 ```
 
 ## Example
-- `01-vite-sample` contain example of web application, which uses LazyInject as DI container, bundled using vite
+
+- `01-vite-sample` contain example of web application, which uses LazyInject as DI container, bundled using vite with
+  dependencies in-code
+- `02-vite-sample` contain example of web application, which uses LazyInject as DI container, bundled using vite with
+  dependencies set from lazyinject.config.js
 
 ## License
+
 This project is open source and available under the MIT License.
 
 ## Contributing
+
 Contributions are welcome! Please feel free to submit issues and pull requests.
