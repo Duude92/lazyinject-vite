@@ -73,14 +73,14 @@ export function viteLazyInject() {
         });
 
         resolvedFiles.push(...files);
-        const imports = resolvedFiles
-          .map((file) => {
-            let relative = '/' + path.relative(rootDir, file).replace(/\\/g, '/');
-            return `import "injected:${relative}";\n`;
-          })
-          .join('');
-        code = imports.concat(code);
       }
+      const imports = resolvedFiles
+        .map((file) => {
+          let relative = '/' + path.relative(rootDir, file).replace(/\\/g, '/');
+          return `import "injected:${relative}";\n`;
+        })
+        .join('');
+      code = imports.concat(code);
 
       return {
         code,
