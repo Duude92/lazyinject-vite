@@ -59,7 +59,12 @@ export function viteLazyInject() {
       }
 
       resolvedFiles = [];
-
+      const isContainerDeclared = code.match(
+        'import.+\\bContainer\\b.+from.+\\@duude92\\/lazyinject',
+      );
+      code = isContainerDeclared?.index
+        ? ''
+        : `import {Container} from "@duude92/lazyinject";\n` + code;
       for (const rel of paths) {
         const absDir = path.resolve(sourceDir, rel);
         const files = await glob('**/*.ts', {
@@ -74,12 +79,7 @@ export function viteLazyInject() {
             return `import "injected:${relative}";\n`;
           })
           .join('');
-        const isContainerDeclared = code.match(
-          'import.+\\bContainer\\b.+from.+\\@duude92\\/lazyinject',
-        );
-        code =
-          (isContainerDeclared?.index ? '' : `import {Container} from "@duude92/lazyinject";\n`) +
-          imports.concat(code);
+        code = imports.concat(code);
       }
 
       return {
