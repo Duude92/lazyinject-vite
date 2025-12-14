@@ -4,6 +4,7 @@ import glob from 'fast-glob';
 import { PluginOption, type ResolvedConfig } from 'vite';
 import { readFileSync } from 'node:fs';
 import { transform } from 'esbuild';
+import { transformAsync } from '@babel/core';
 
 export function viteLazyInject() {
   let rootDir: string = '';
@@ -98,16 +99,22 @@ export function viteLazyInject() {
       }
     },
     async load(id) {
+      // This should be applied only to injected files, as package should resolve its dependencies
       if (id.startsWith('\0injected:')) {
         const filePath = id.slice('\0injected:'.length);
         const fullPath = path.join(rootDir, filePath);
-        const sourceCode = readFileSync(fullPath, 'utf-8');
-        const transformedCode = await transform(sourceCode, {
+        const code = readFileSync(fullPath, 'utf-8');
+
+        const result = await transformAsync(code, {
+          filename: id,
+          presets: ['@babel/preset-typescript'],
+          plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]],
+        });
+        return transform(result?.code ?? code, {
           loader: 'ts',
           target: 'es2020',
           minify: false,
         });
-        return transformedCode.code;
       }
     },
   } as PluginOption;
