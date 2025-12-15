@@ -103,6 +103,7 @@ export function viteLazyInject() {
       if (id.startsWith('\0injected:')) {
         const filePath = id.slice('\0injected:'.length);
         const fullPath = path.join(rootDir, filePath);
+        this.addWatchFile(fullPath);
         const code = readFileSync(fullPath, 'utf-8');
 
         const result = await transformAsync(code, {
