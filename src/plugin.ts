@@ -3,7 +3,9 @@ import fs from 'node:fs';
 import glob from 'fast-glob';
 import { PluginOption, type ResolvedConfig } from 'vite';
 import { readFileSync } from 'node:fs';
-import { transform } from 'esbuild';
+
+const VIRTUAL_ID = 'lazyinject:modules';
+const RESOLVED_ID = '\0' + VIRTUAL_ID;
 
 export function viteLazyInject() {
   let rootDir: string = '';
@@ -74,13 +76,7 @@ export function viteLazyInject() {
 
         resolvedFiles.push(...files);
       }
-      const imports = resolvedFiles
-        .map((file) => {
-          let relative = '/' + path.relative(rootDir, file).replace(/\\/g, '/');
-          return `import "injected:${relative}";\n`;
-        })
-        .join('');
-      code = code.concat('\n' + imports);
+      code += `\nimport "${VIRTUAL_ID}";\n`;
 
       return {
         code,
@@ -88,28 +84,30 @@ export function viteLazyInject() {
       };
     },
     resolveId(id, importer) {
-      if (id.startsWith('injected:')) {
-        return '\0' + id;
-      }
-      if (importer && importer.startsWith('\0injected:')) {
-        const originalFilePath = importer.slice('\0injected:'.length);
-        const originalDir = path.dirname(path.join(rootDir, originalFilePath));
-        return path.resolve(originalDir, id);
+      if (id === VIRTUAL_ID) {
+        return RESOLVED_ID;
       }
     },
     async load(id) {
-      // This should be applied only to injected files, as package should resolve its dependencies
-      if (id.startsWith('\0injected:')) {
-        const filePath = id.slice('\0injected:'.length);
-        const fullPath = path.join(rootDir, filePath);
-        const sourceCode = readFileSync(fullPath, 'utf-8');
-        const transformedCode = await transform(sourceCode, {
-          loader: 'ts',
-          target: 'es2020',
-          minify: false,
-        });
-        return transformedCode.code;
-      }
+      if (id !== RESOLVED_ID) return null;
+
+      const imports = await Promise.all(
+        resolvedFiles.map(async (file, i) => {
+          const resolved = await this.resolve(file, undefined, {
+            skipSelf: true,
+          });
+
+          if (!resolved) {
+            throw new Error(`Failed to resolve ${file}`);
+          }
+
+          return `import * as m${i} from ${JSON.stringify(resolved.id)};`;
+        }),
+      );
+
+      return `
+    ${imports.join('\n')}
+    export default [${resolvedFiles.map((_, i) => `m${i}`).join(', ')}];`;
     },
   } as PluginOption;
 }
