@@ -81,7 +81,7 @@ export function viteLazyInject() {
           return `import "injected:${relative}";\n`;
         })
         .join('');
-      code = imports.concat(code);
+      code = code.concat('\n' + imports);
 
       return {
         code,
