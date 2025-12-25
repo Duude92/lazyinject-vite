@@ -4,7 +4,6 @@ import glob from 'fast-glob';
 import { PluginOption, type ResolvedConfig } from 'vite';
 import { readFileSync } from 'node:fs';
 import { transform } from 'esbuild';
-import { transformAsync } from '@babel/core';
 
 export function viteLazyInject() {
   let rootDir: string = '';
@@ -33,7 +32,7 @@ export function viteLazyInject() {
         code = code.replace(callMatch[0], `new Container()`);
         const argsStr = callMatch[1];
         // extract catalogs
-        const catalogsMatch = argsStr.match(/catalogs\s*:\s*\[([\s\S]*?)\]/);
+        const catalogsMatch = argsStr.match(/catalogs\s*:\s*\[([\s\S]*?)]/);
         if (!catalogsMatch) return null;
         catalogsStr = catalogsMatch[1];
       } else {
@@ -103,19 +102,13 @@ export function viteLazyInject() {
       if (id.startsWith('\0injected:')) {
         const filePath = id.slice('\0injected:'.length);
         const fullPath = path.join(rootDir, filePath);
-        this.addWatchFile(fullPath);
-        const code = readFileSync(fullPath, 'utf-8');
-
-        const result = await transformAsync(code, {
-          filename: id,
-          presets: ['@babel/preset-typescript'],
-          plugins: [['@babel/plugin-proposal-decorators', { legacy: true }]],
-        });
-        return transform(result?.code ?? code, {
+        const sourceCode = readFileSync(fullPath, 'utf-8');
+        const transformedCode = await transform(sourceCode, {
           loader: 'ts',
           target: 'es2020',
           minify: false,
         });
+        return transformedCode.code;
       }
     },
   } as PluginOption;
